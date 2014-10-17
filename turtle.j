@@ -36,6 +36,10 @@ EOF
 		exec $(which jsh) module edit turtle
 	}
 
+	_view() {
+		exec less $($(which jsh) module filename turtle)
+	}
+
 	_with() {
 		_module() {
 			local name=$1
