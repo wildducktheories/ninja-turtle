@@ -16,7 +16,8 @@ SYNOPSIS
 ......bash
 ......stop
 ......start
-....devhost
+....daemon
+......config
 ......up
 ......down
 ......status
@@ -38,6 +39,7 @@ SYNOPSIS
 ......list
 ....with
 ......module
+......turtle-src
 ....view
 
 MORE INFO
