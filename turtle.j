@@ -1,22 +1,39 @@
-_ninja() 
+_turtle()
 {
 	_usage() {
 		cat <<EOF
-ninja 
-	driver 
+turtle
+	driver
 		get
 			src
+			deploy-dir
 		asset
 			valid
 		deploy
 		transport
-		build
+		arm-build
+		installed-version
+	devkit
+		upgrade
+		name
+		ssh
+		less
+		tail
+		bash
+		stop
+		start
+	devhost
+		up
+		down
+		status
+	with
+		module
 
 EOF
 	}
 
 	_edit() {
-		jsh invoke module edit ninja
+		exec $(which jsh) module edit turtle
 	}
 
 	_with() {
@@ -43,18 +60,44 @@ EOF
 		jsh invoke "$@"
 	}
 
-	_driver() 
+	_devhost()
 	{
-		  _name() 
+		_status() {
+			pid=$(cat /tmp/sphere-validator.pid)
+			if test -z "$pid" || ! ps -p "$pid" &>/dev/null; then
+				status="stopped"
+			else
+				status="running"
+			fi
+			echo "sphere-validator $status $pid"
+		}
+
+		_up() {
+			pid=$(cat /tmp/sphere-validator.pid)
+			if test -z "$pid" || ! ps -p "$pid" &>/dev/null; then
+				sphere-validator > /tmp/sphere-validator.log &
+				echo $! > /tmp/sphere-validator.pid
+				status="started"
+			else
+				status="running"
+			fi
+		}
+
+		jsh invoke "$@"
+	}
+
+	_driver()
+	{
+		  _name()
 		  {
 		  		local name=${1:-${NINJA_DRIVER}}
 		  		test -n "$name" || die "specify a driver or set NINJA_DRIVER"
 		  		echo $name
 		  }
 
-		  _assert() 
+		  _assert()
 		  {
-		  		_valid() 
+		  		_valid()
 		  		{
 		  			name=$(_name $1)
 		  			test -d "$(_get src $name)" || die "$name is not a valid driver name"
@@ -62,9 +105,9 @@ EOF
 		  		jsh invoke "$@"
 		  }
 
-		  _get() 
+		  _get()
 		  {
-		  		_src() 
+		  		_src()
 		  		{
 		  			local name=$(_name $1)
 		  			echo $GOPATH/src/github.com/ninjasphere/$name
@@ -84,7 +127,7 @@ EOF
 		  		jsh invoke "$@"
 		  }
 
-		  _deploy() 
+		  _deploy()
 		  {
 		  		local name=$(_name $1)
 		  		local built="<not built>"
@@ -92,8 +135,8 @@ EOF
 		  		built=$(_arm-build "$@") &&
 		  		rsync -q $(_get src)/linux-arm/$name ninja@${DEVKIT_HOST:-my-devkit}:/tmp &&
 		  		(_devkit bash <<EOF
-sudo service spheramid stop; 
-sudo cp /tmp/$name $(_get deploy-dir "$@")/$name && 
+sudo service spheramid stop;
+sudo cp /tmp/$name $(_get deploy-dir "$@")/$name &&
 ${NINJA_CLEANLOGS:-true} &&
 sudo service spheramid start
 EOF
@@ -110,43 +153,35 @@ EOF
 sudo service spheramid stop
 sudo apt-get update -y &&
 sudo apt-get install -y "${name/driver-/ninja-}"
-sudo service spheramid start 
+sudo service spheramid start
 EOF
 			)
 		}
 
+		_build()
+		{
+			local name=$(_name $1)
+			_assert valid $name
+			(
+				cd $(_get src)
+				local out
+				if test "${GOOS:-darwin}" == "darwin"; then
+					out=bin
+				else
+					out=${GOOS}-${GOARCH}
+					mkdir -p $out
+				fi
+				go build -o $out/$name
+				md5sum < $out/$name | cut -f1 -d' '
+			)
+		}
 
-		  _transport()
-		  {
-		  		local name=$(_name $1)
-		  		_assert valid $name
+		_arm-build()
+		{
+			GOOS=linux GOARCH=arm _build "$@"
+		}
 
-		  }
-
-		  _build()
-		  {
-		  		local name=$(_name $1)
-		  		_assert valid $name
-		  		(
-			  		cd $(_get src)
-			  		local out
-			  		if test "${GOOS:-darwin}" == "darwin"; then
-			  			out=bin
-			  		else
-			  			out=${GOOS}-${GOARCH}
-			  			mkdir -p $out
-			  		fi
-			  		go build -o $out/$name
-			  		md5sum < $out/$name | cut -f1 -d' '
-			  	)
-		  }
-
-		  _arm-build() 
-		  {
-		  		GOOS=linux GOARCH=arm _build "$@"
-		  }
-
-		  jsh invoke "$@"
+		jsh invoke "$@"
 	}
 
 	_devkit() {
@@ -159,11 +194,11 @@ EOF
 		}
 
 		_tail() {
-			ssh ninja@$(_name) tail -f "${1:-/var/log/ninjasphere.log}"			
+			ssh ninja@$(_name) tail -f "${1:-/var/log/ninjasphere.log}"
 		}
 
 		_less() {
-			ssh -t ninja@$(_name) less -F "${1:-/var/log/ninjasphere.log}"			
+			ssh -t ninja@$(_name) less -F "${1:-/var/log/ninjasphere.log}"
 		}
 
 		_stop() {
@@ -185,7 +220,7 @@ sudo apt-get update -y &&
 sudo apt-get dist-upgrade -y
 echo 'setInterval(function(){console.log("I SUCK")}, 60000)' | sudo tee /opt/ninjablocks/drivers/driver-chromecast/index.js
 echo 'setInterval(function(){console.log("I SUCK")}, 60000)' | sudo tee /opt/ninjablocks/drivers/driver-chromecast/run.js
-sudo service spheramid start 
+sudo service spheramid start
 EOF
 		}
 
