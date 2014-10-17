@@ -77,30 +77,68 @@ EOF
 		(jsh invoke "$@")
 	}
 
-	_devhost()
-	{
+	_daemon() {
+		_config() {
+			cat <<EOF
+sphere-validator,sphere-validator
+mosquitto,mosquitto
+godoc,godoc -http=:6060
+EOF
+		}
+
 		_status() {
-			pid=$(cat /tmp/sphere-validator.pid)
-			if test -z "$pid" || ! ps -p "$pid" &>/dev/null; then
-				status="stopped"
-			else
-				status="running"
-			fi
-			echo "sphere-validator $status $pid"
+			local daemon=$1
+
+			local status
+			local pid
+
+			pid=$(test -f /tmp/${daemon}.pid && cat /tmp/${daemon}.pid)
+			pid=$(test -n "$pid" && ps -o pid= -p $pid)
+			status=running
+
+			test -n "$pid" || status=stopped
+			echo $daemon $status $pid
 		}
 
 		_up() {
-			pid=$(cat /tmp/sphere-validator.pid)
-			if test -z "$pid" || ! ps -p "$pid" &>/dev/null; then
-				sphere-validator > /tmp/sphere-validator.log &
-				echo $! > /tmp/sphere-validator.pid
-				status="started"
-			else
-				status="running"
+			local daemon=$1
+			set -- $(_status "$daemon")
+			local status=$2
+			if test "$status" = "stopped"; then
+				local launch=$(_config | grep ^$daemon, | cut -f2- -d,)
+				test -n "$launch" || die "$daemon is not a known daemon"
+				$launch &> /tmp/${daemon}.log &
+				echo $! > /tmp/${daemon}.pid
 			fi
+			_status "$daemon"
 		}
 
-		jsh invoke "$@"
+		_down() {
+			local daemon=$1
+			set -- $(_status "$daemon")
+			local status=$2
+			local pid=$3
+			if test "$status" != "stopped"; then
+				kill "$pid"
+			fi
+			_status "$daemon"
+		}
+
+		case $1 in
+		up|down|status)
+			if test -n "$2"; then
+				jsh invoke "$@"
+			else
+				_config | cut -f1 -d, | while read daemon; do
+					jsh invoke "$1" "$daemon"
+				done
+			fi
+		;;
+		*)
+			jsh invoke "$@"
+		;;
+		esac
+
 	}
 
 	_driver()
