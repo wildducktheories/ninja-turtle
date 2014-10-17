@@ -72,6 +72,9 @@ EOF
 			else
 				exec bash --login
 			fi
+		_turtle-src() {
+			cd $(dirname $($(which jsh) module filename turtle))
+			_dispatch "$@"
 		}
 
 		(jsh invoke "$@")
