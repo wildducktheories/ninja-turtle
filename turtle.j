@@ -155,61 +155,61 @@ EOF
 	{
 		  _name()
 		  {
-		  		local name=${1:-${NINJA_DRIVER}}
-		  		test -n "$name" || die "specify a driver or set NINJA_DRIVER"
-		  		echo $name
+				local name=${1:-${TURTLE_DRIVER:-$(_module name)}}
+				test -n "$name" || die "specify a driver or set TURTLE_DRIVER"
+				echo $name
 		  }
 
 		  _assert()
 		  {
-		  		_valid()
-		  		{
-		  			name=$(_name $1)
-		  			test -d "$(_get src $name)" || die "$name is not a valid driver name"
-		  		}
-		  		jsh invoke "$@"
+				_valid()
+				{
+					name=$(_name $1)
+					test -d "$(_get src $name)" || die "$name is not a valid driver name"
+				}
+				jsh invoke "$@"
 		  }
 
 		  _get()
 		  {
-		  		_src()
-		  		{
-		  			local name=$(_name $1)
-		  			echo $GOPATH/src/github.com/ninjasphere/$name
-		  		}
+				_src()
+				{
+					local name=$(_name $1)
+					echo $GOPATH/src/github.com/ninjasphere/$name
+				}
 
-		  		_deploy-dir()
-		  		{
-		  			local name=$(_name $1)
-		  			echo /opt/ninjablocks/drivers/$name
-		  		}
+				_deploy-dir()
+				{
+					local name=$(_name $1)
+					echo /opt/ninjablocks/drivers/$name
+				}
 
 				_installed-version()
 				{
 					(_devkit ssh md5sum $(_deploy-dir "$@")/$(_name "$@") | cut -f1 -d' ')
 				}
 
-		  		jsh invoke "$@"
+				jsh invoke "$@"
 		  }
 
 		  _deploy()
 		  {
-		  		local name=$(_name $1)
-		  		local built="<not built>"
-		  		local deployed="<not deployed>"
-		  		built=$(_arm-build "$@") &&
-		  		rsync -q $(_get src)/linux-arm/$name ninja@${DEVKIT_HOST:-my-devkit}:/tmp &&
-		  		(_devkit bash <<EOF
+				local name=$(_name $1)
+				local built="<not built>"
+				local deployed="<not deployed>"
+				built=$(_arm-build "$@") &&
+				rsync -q $(_get src)/linux-arm/$name ninja@${DEVKIT_HOST:-my-devkit}:/tmp &&
+				(_devkit bash <<EOF
 sudo service spheramid stop;
 sudo cp /tmp/$name $(_get deploy-dir "$@")/$name &&
-${NINJA_CLEANLOGS:-true} &&
+${TURTLE_CLEANLOGS:-true} &&
 sudo service spheramid start
 EOF
 				) &&
-		  		deployed=$(_get installed-version) &&
-		  		test "$built" = "$deployed" || die "failed $built != $deployed"
-		  		echo "ok - $built - $(date)" 1>&2
-		  		echo "$built"
+				deployed=$(_get installed-version) &&
+				test "$built" = "$deployed" || die "failed $built != $deployed"
+				echo "ok - $built - $(date)" 1>&2
+				echo "$built"
 		  }
 
 		_install() {
