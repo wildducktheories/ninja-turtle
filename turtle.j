@@ -245,3 +245,30 @@ cat
 
 	jsh invoke "$@"
 }
+if test "$(type -t "_jsh")" != "function"; then
+	die() {
+		echo "$*" 1>&2
+		exit 1
+	}
+
+	export PATH=~/bin:$PATH &&
+	mkdir -p ~/bin
+
+	if ! test -d ~/.jsh; then
+		git clone https://github.com/wildducktheories/jsh-installation.git ~/.jsh &&
+		pushd ~/.jsh &&
+		git submodule update --init --recursive &&
+		mnt/jsh/resolved-packages/jsh/bin/j.sh jsh installation init ~/bin &&
+		popd &&
+		echo "jsh installed - see https://github.com/wildducktheories/jsh for more details." || die "jsh installation failed."
+	fi
+
+	mkdir -p ~/.jsh/mnt/jsh/dist/0200-turtle/turtle &&
+	ln -sf ../dist/0200-turtle/turtle ~/.jsh/mnt/jsh/resolved-packages &&
+	test -f ~/.jsh/mnt/jsh/dist/0200-turtle/turtle/turtle.j || {
+		mv "${BASH_SOURCE}" ~/.jsh/mnt/jsh/dist/0200-turtle/turtle &&
+		echo "moved ${BASH_SOURCE} to ~/.jsh/mnt/jsh/dist/0200-turtle/turtle"
+	} &&
+	jsh installation link bin &&
+	echo "turtle installation successful - type turtle for help" || "turtle installation failed."
+fi
