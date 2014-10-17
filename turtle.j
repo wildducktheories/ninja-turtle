@@ -58,6 +58,14 @@ EOF
 	}
 
 	_with() {
+		_dispatch() {
+			if test $# -gt 0; then
+				"$@"
+			else
+				exec bash --login
+			fi
+		}
+
 		_module() {
 			local name=$1
 			shift 1
@@ -67,17 +75,16 @@ EOF
 			test -n "$m" || die "$name is not a module"
 
 			cd ${GOPATH}/src/$m
-			if test $# -gt 0; then
-				"$@"
-			else
-				exec bash --login
-			fi
+
+			_dispatch "$0"
+		}
+
 		_turtle-src() {
 			cd $(dirname $($(which jsh) module filename turtle))
 			_dispatch "$@"
 		}
 
-		(jsh invoke "$@")
+		(jsh invoke "$@") || exit $?
 	}
 
 	_daemon() {
