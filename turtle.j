@@ -74,7 +74,7 @@ EOF
 			fi
 		}
 
-		jsh invoke "$@"
+		(jsh invoke "$@")
 	}
 
 	_devhost()
