@@ -1,35 +1,52 @@
 _turtle()
 {
 	_usage() {
-		cat <<EOF
-turtle
-	driver
-		get
-			src
-			deploy-dir
-		asset
-			valid
-		deploy
-		transport
-		arm-build
-		installed-version
-	devkit
-		upgrade
-		name
-		ssh
-		less
-		tail
-		bash
-		stop
-		start
-	devhost
-		up
-		down
-		status
-	with
-		module
+		${PAGER:-less} -f <(sed -e :a -e 's/^\( *\)\./\1 /' -e ta <<EOF
+NAME
+..turtle - the ninja turtle shell
 
+SYNOPSIS
+..turtle
+....devkit
+......upgrade
+......name
+......ssh
+......less
+......tail
+......bash
+......stop
+......start
+....devhost
+......up
+......down
+......status
+....driver
+......get
+........src
+........deploy-dir
+......assert
+........valid
+......deploy
+......arm-build
+......installed-version
+....edit
+....module
+......name
+......dir
+......org
+......host
+......list
+....with
+......module
+....view
+
+MORE INFO
+..See http://github.com/ninjasphere/ninja-turtle
+
+COPYRIGHT
+..(c) 2014 - Ninja Blocks Inc.
 EOF
+)
 	}
 
 	_edit() {
