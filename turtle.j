@@ -8,39 +8,54 @@ NAME
 SYNOPSIS
 ..turtle
 ....devkit
-......upgrade
-......name
-......ssh
-......less
-......tail
-......bash
-......stop
-......start
+......upgrade - stop spheramid then do an apt-get update + dist-upgrade upgrade on the dev-kit
+......name - the name of the dev-kit
+......ssh - ssh to the dev-kkit
+......less - less the specified dev-kit file or /var/log/ninjasphere.log
+......tail - tail -f the specified dev-kit file or /var/log/ninjasphere.log
+......bash - run bash on the dev-kit with the contents of stdin
+......stop - stop the spheramid service
+......start - start the spheramid service
 ....daemon
-......config
-......up
-......down
-......status
+......config - list the development host daemon configuration
+......up - bring up the specified daemon or all daemons
+......down - take down the specified daemon or all daemons
+......status - report the status of the specified daemon or all daemons
 ....driver
 ......get
-........src
-........deploy-dir
+........src - get the src directory of the current driver
+........deploy-dir - get the deployment directory for the current driver
 ......assert
-........valid
-......deploy
-......arm-build
-......installed-version
-....edit
+........valid - assert that there is a current driver
+......deploy - build and deploy the current driver to the dev-kit
+......build - build the driver
+......arm-build - do an arm build of the driver
+......installed-version - report the md5sum of the installed version of the driver
+....edit - edit the turtle scripts
 ....module
-......name
-......dir
-......org
-......host
-......list
+......name - the current module name
+......dir - the current module directory
+......org - the organization part of the current module's name
+......host - the host part of the current module's name
+......list - a list of modules in $GOPATH/src
 ....with
-......module
-......turtle-src
+......module - change to the specified modules directory and run the specified command or start a new shell
+......turtle-src - change to the turtle src directory and run the specified command or start a new shell
 ....view
+
+INSTALLATION
+
+Copy turtle.j into /tmp, then run:
+
+..bash /tmp/turtle.j
+
+NOTES
+
+Works best if:
+..* ~/bin is in your PATH
+..* you have installed an ssh public key in the ~ninja/.ssh/authorized_keys file of your dev-kit
+..* you have added :NOPASSWD to the ninja user in the sudoer's file
+..* you have a ~/.sphere/remote.json file containing the mqtt.host and serial-override for your dev-kit
 
 MORE INFO
 ..See http://github.com/ninjasphere/ninja-turtle
