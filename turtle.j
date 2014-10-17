@@ -42,14 +42,10 @@ EOF
 			shift 1
 			test -n "$name" || die "usage: with module {module}"
 
-			if test -d "$GOPATH/src/github.com/ninjasphere/$name"; then
-				d="$GOPATH/src/github.com/ninjasphere/$name"
-			elif test -d "$GOPATH/src/github.com/ninjablocks/$name"; then
-				d="$GOPATH/src/github.com/ninjablocks/$name"
-			else
-				die "$name does not apepar to be a Ninja module"
-			fi
-			cd "$d"
+			m=$(_turtle module list | grep ${name}\$ | tail -1)
+			test -n "$m" || die "$name is not a module"
+
+			cd ${GOPATH}/src/$m
 			if test $# -gt 0; then
 				"$@"
 			else
@@ -242,9 +238,47 @@ cat
 		jsh invoke "$@"
 	}
 
+	_module() {
+		_list() {
+			find $GOPATH/src -mindepth 3 -maxdepth 3 -type d | while read d
+			do
+				echo ${d#${GOPATH%/}/src/}
+			done
+		}
+
+		_host() {
+			echo $2
+		}
+
+		_org() {
+			echo $3
+		}
+
+		_name() {
+			echo $4
+		}
+
+		_dir() {
+			echo $GOPATH/$1/$2/$3/$4
+		}
+
+		local pwd=$(pwd)
+		local relative=${pwd#${GOPATH%/}/}
+		if test "$relative" != $pwd; then
+			cmd=$1
+			set -- ${relative//\// }
+			if test $# -ge 4 && test $1 = "src"; then
+				jsh invoke $cmd "$@"
+				return $?
+			fi
+		fi
+		die "$(pwd) is not in a module directory"
+	}
+
 
 	jsh invoke "$@"
 }
+
 if test "$(type -t "_jsh")" != "function"; then
 	die() {
 		echo "$*" 1>&2
