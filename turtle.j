@@ -362,19 +362,26 @@ cat
 			echo $GOPATH/$1/$2/$3/$4
 		}
 
-		local pwd=$(pwd)
-		local relative=${pwd#${GOPATH%/}/}
-		if test "$relative" != $pwd; then
-			cmd=$1
-			set -- ${relative//\// }
-			if test $# -ge 4 && test $1 = "src"; then
-				jsh invoke $cmd "$@"
+		case "$1" in
+			list)
+				jsh invoke "$@"
 				return $?
-			fi
-		fi
-		die "$(pwd) is not in a module directory"
+			;;
+			*)
+				local pwd=$(pwd)
+				local relative=${pwd#${GOPATH%/}/}
+				if test "$relative" != $pwd; then
+					cmd=$1
+					set -- ${relative//\// }
+					if test $# -ge 4 && test $1 = "src"; then
+						jsh invoke $cmd "$@"
+						return $?
+					fi
+				fi
+				die "$(pwd) is not in a module directory"
+			;;
+		esac
 	}
-
 
 	jsh invoke "$@"
 }
