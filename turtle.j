@@ -22,9 +22,8 @@ SYNOPSIS
 ......down - take down the specified daemon or all daemons
 ......status - report the status of the specified daemon or all daemons
 ....driver
-......get
-........src - get the src directory of the current driver
-........deploy-dir - get the deployment directory for the current driver
+......src - print the src directory of the current driver
+......deploy-dir - print the deployment directory for the current driver
 ......assert
 ........valid - assert that there is a current driver
 ......deploy - build and deploy the current driver to the dev-kit
@@ -184,64 +183,59 @@ EOF
 
 	_driver()
 	{
-		  _name()
-		  {
-				local name=${1:-${TURTLE_DRIVER:-$(_module name)}}
-				test -n "$name" || die "specify a driver or set TURTLE_DRIVER"
-				echo $name
-		  }
+		_name()
+		{
+			local name=${1:-${TURTLE_DRIVER:-$(_module name)}}
+			test -n "$name" || die "specify a driver or set TURTLE_DRIVER"
+			echo $name
+		}
 
-		  _assert()
-		  {
-				_valid()
-				{
-					name=$(_name $1)
-					test -d "$(_get src $name)" || die "$name is not a valid driver name"
-				}
-				jsh invoke "$@"
-		  }
+		_assert()
+		{
+			_valid()
+			{
+				name=$(_name $1)
+				test -d "$(_src $name)" || die "$name is not a valid driver name"
+			}
+			jsh invoke "$@"
+		}
 
-		  _get()
-		  {
-				_src()
-				{
-					local name=$(_name $1)
-					echo $GOPATH/src/github.com/ninjasphere/$name
-				}
+		_src()
+		{
+			local name=$(_name $1)
+			echo $GOPATH/src/github.com/ninjasphere/$name
+		}
 
-				_deploy-dir()
-				{
-					local name=$(_name $1)
-					echo /opt/ninjablocks/drivers/$name
-				}
+		_deploy-dir()
+		{
+			local name=$(_name $1)
+			echo /opt/ninjablocks/drivers/$name
+		}
 
-				_installed-version()
-				{
-					(_devkit ssh md5sum $(_deploy-dir "$@")/$(_name "$@") | cut -f1 -d' ')
-				}
+		_installed-version()
+		{
+			(_devkit ssh md5sum $(_deploy-dir "$@")/$(_name "$@") | cut -f1 -d' ')
+		}
 
-				jsh invoke "$@"
-		  }
-
-		  _deploy()
-		  {
+		_deploy()
+		{
 				local name=$(_name $1)
 				local built="<not built>"
 				local deployed="<not deployed>"
 				built=$(_arm-build "$@") &&
-				rsync -q $(_get src)/linux-arm/$name ninja@${DEVKIT_HOST:-my-devkit}:/tmp &&
+				rsync -q $(_src)/linux-arm/$name ninja@${DEVKIT_HOST:-my-devkit}:/tmp &&
 				(_devkit bash <<EOF
 sudo service spheramid stop;
-sudo cp /tmp/$name $(_get deploy-dir "$@")/$name &&
+sudo cp /tmp/$name $(_deploy-dir "$@")/$name &&
 ${TURTLE_CLEANLOGS:-true} &&
 sudo service spheramid start
 EOF
 				) &&
-				deployed=$(_get installed-version) &&
+				deployed=$(_installed-version) &&
 				test "$built" = "$deployed" || die "failed $built != $deployed"
 				echo "ok - $built - $(date)" 1>&2
 				echo "$built"
-		  }
+		}
 
 		_install() {
 			local name=$(_name $1)
@@ -259,7 +253,7 @@ EOF
 			local name=$(_name $1)
 			_assert valid $name
 			(
-				cd $(_get src)
+				cd $(_src)
 				local out
 				if test "${GOOS:-darwin}" == "darwin"; then
 					out=bin
