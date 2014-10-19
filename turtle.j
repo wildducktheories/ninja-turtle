@@ -101,10 +101,19 @@ EOF
 			_dispatch "$@"
 		}
 
-		_turtle() {
+		__turtle() {
 			cd $(dirname $($(which jsh) module filename turtle))
 			_dispatch "$@"
 		}
+
+		case "$1" in
+			turtle)
+				shift 1
+				set -- _turtle "$@"
+			;;
+			*)
+			;;
+		esac
 
 		(jsh invoke "$@") || exit $?
 	}
