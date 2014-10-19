@@ -40,7 +40,7 @@ SYNOPSIS
 ......list - a list of modules in $GOPATH/src
 ....with
 ......module - change to the specified modules directory and run the specified command or start a new shell
-......turtle-src - change to the turtle src directory and run the specified command or start a new shell
+......turtle - change to the turtle src directory and run the specified command or start a new shell
 ....view
 
 INSTALLATION
@@ -79,7 +79,12 @@ EOF
 			if test $# -gt 0; then
 				"$@"
 			else
-				exec bash --login
+				exec  bash --init-file <(
+cat <<EOF
+export TURTLE_DEPTH=$(expr ${TURTLE_DEPTH:-0} + 1);
+export PS1="\\h:\\W \\u (\${TURTLE_DEPTH})\$ ";
+EOF
+				)
 			fi
 		}
 
@@ -96,7 +101,7 @@ EOF
 			_dispatch "$0"
 		}
 
-		_turtle-src() {
+		_turtle() {
 			cd $(dirname $($(which jsh) module filename turtle))
 			_dispatch "$@"
 		}
@@ -390,5 +395,5 @@ if test "$(type -t "_jsh")" != "function"; then
 		echo "moved ${BASH_SOURCE} to ~/.jsh/mnt/jsh/dist/0200-turtle/turtle"
 	} &&
 	jsh installation link bin &&
-	echo "turtle installation successful - type turtle for help" || "turtle installation failed."
+	echo "turtle installation successful - type turtle for help" || die "turtle installation failed."
 fi
