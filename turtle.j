@@ -98,7 +98,7 @@ EOF
 
 			cd ${GOPATH}/src/$m
 
-			_dispatch "$0"
+			_dispatch "$@"
 		}
 
 		_turtle() {
