@@ -308,8 +308,6 @@ EOF
 sudo service spheramid stop
 sudo apt-get update -y &&
 sudo apt-get dist-upgrade -y
-echo 'setInterval(function(){console.log("I SUCK")}, 60000)' | sudo tee /opt/ninjablocks/drivers/driver-chromecast/index.js
-echo 'setInterval(function(){console.log("I SUCK")}, 60000)' | sudo tee /opt/ninjablocks/drivers/driver-chromecast/run.js
 sudo service spheramid start
 EOF
 		}
