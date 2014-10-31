@@ -398,7 +398,7 @@ if test "$(type -t "_jsh")" != "function"; then
 
 	mkdir -p ~/.jsh/mnt/jsh/dist/0200-turtle &&
 	pushd ~/.jsh/mnt/jsh/dist/0200-turtle &&
-	test -d turtle || git clone git@github.com:wildducktheories/ninja-turtle.git turtle &&
+	test -d turtle || git clone https://github.com/wildducktheories/ninja-turtle.git turtle &&
 	popd &&
 	ln -sf ../dist/0200-turtle/turtle ~/.jsh/mnt/jsh/resolved-packages &&
 	jsh installation link bin &&
