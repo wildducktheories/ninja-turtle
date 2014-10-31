@@ -396,12 +396,11 @@ if test "$(type -t "_jsh")" != "function"; then
 		echo "jsh installed - see https://github.com/wildducktheories/jsh for more details." || die "jsh installation failed."
 	fi
 
-	mkdir -p ~/.jsh/mnt/jsh/dist/0200-turtle/turtle &&
+	mkdir -p ~/.jsh/mnt/jsh/dist/0200-turtle &&
+	pushd ~/.jsh/mnt/jsh/dist/0200-turtle &&
+	test -d turtle || git clone git@github.com:wildducktheories/ninja-turtle.git turtle &&
+	popd &&
 	ln -sf ../dist/0200-turtle/turtle ~/.jsh/mnt/jsh/resolved-packages &&
-	test -f ~/.jsh/mnt/jsh/dist/0200-turtle/turtle/turtle.j || {
-		mv "${BASH_SOURCE}" ~/.jsh/mnt/jsh/dist/0200-turtle/turtle &&
-		echo "moved ${BASH_SOURCE} to ~/.jsh/mnt/jsh/dist/0200-turtle/turtle"
-	} &&
 	jsh installation link bin &&
 	echo "turtle installation successful - type turtle for help" || die "turtle installation failed."
 fi
