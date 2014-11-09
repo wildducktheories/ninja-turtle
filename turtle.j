@@ -330,6 +330,23 @@ cat
 		jsh invoke "$@"
 	}
 
+	_factory-test()
+	{
+		_deploy() {
+			make arm-build &&
+			COPYFILE_DISABLE=1 tar -czLvf sphere-factory-test-adhoc.tgz bin/json bin/sphere-factory-test scripts/login.sh scripts/test-controller.sh images/*.png &&
+			scp sphere-factory-test-adhoc.tgz ninja@${DEVKIT_HOST:-my-devkit}:/tmp &&
+			(_devkit bash <<EOF
+cd /opt/ninjablocks/sphere-factory-test
+gzip -dc /tmp/sphere-factory-test-adhoc.tgz | sudo tar -xvf -
+EOF
+			)
+		}
+
+		jsh invoke "$@"
+	}
+
+
 	_module() {
 		_list() {
 			find $GOPATH/src -mindepth 3 -maxdepth 3 -type d | while read d
