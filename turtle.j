@@ -343,6 +343,14 @@ EOF
 			)
 		}
 
+		_update-debian-packages() {
+			_devkit bash <<EOF
+sudo apt-get update -y && sudo apt-get install -d ninjasphere-factory-test
+EOF
+ 			rsync ninja@${DEVKIT_HOST:-my-devkit}:/var/cache/apt/archives/ninjasphere-factory-test_*.deb $GOPATH/src/github.com/ninjasphere/sphere-factory-test/installer/
+		}
+
+
 		jsh invoke "$@"
 	}
 
