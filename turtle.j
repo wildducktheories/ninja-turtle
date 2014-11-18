@@ -334,7 +334,7 @@ cat
 	{
 		_deploy() {
 			make arm-build &&
-			COPYFILE_DISABLE=1 tar -czLvf sphere-factory-test-adhoc.tgz bin/json bin/sphere-factory-test scripts/login.sh scripts/test-controller.sh images/*.png &&
+			COPYFILE_DISABLE=1 tar -czLvf sphere-factory-test-adhoc.tgz bin/json bin/sphere-io scripts/login.sh scripts/test-controller.sh images/*.png &&
 			scp sphere-factory-test-adhoc.tgz ninja@${DEVKIT_HOST:-my-devkit}:/tmp &&
 			(_devkit bash <<EOF
 cd /opt/ninjablocks/sphere-factory-test
