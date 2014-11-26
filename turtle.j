@@ -354,6 +354,16 @@ EOF
 		jsh invoke "$@"
 	}
 
+	_check() {
+
+		_errcodes() {
+			output=$(sed -n "s/.*\(ERR[0-9]*:\).*/\1/p" | uniq -d)
+			test -z "$output" || die "duplicate error codes detected"
+		}
+
+		jsh invoke "$@"
+	}
+
 
 	_module() {
 		_list() {
