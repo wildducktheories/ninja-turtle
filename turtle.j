@@ -81,7 +81,9 @@ EOF
 				exec  bash --init-file <(
 cat <<EOF
 export TURTLE_DEPTH=$(expr ${TURTLE_DEPTH:-0} + 1);
+export TURTLE_TITLE="$(basename $(pwd)) (\${TURTLE_DEPTH})"
 export PS1="\\h:\\W \\u (\${TURTLE_DEPTH})\$ ";
+turtle title
 EOF
 				)
 			fi
@@ -97,12 +99,14 @@ EOF
 
 			cd ${GOPATH}/src/$m
 
-			_dispatch "$@"
+			(_dispatch "$@")
+			turtle title
 		}
 
 		__turtle() {
 			cd $(dirname $($(which jsh) module filename turtle))
-			_dispatch "$@"
+			(_dispatch "$@")
+			turtle title
 		}
 
 		case "$1" in
@@ -328,6 +332,14 @@ cat
 		}
 
 		jsh invoke "$@"
+	}
+
+	_title() {
+		local title=$1
+		if test -z "$title"; then
+			title="${TURTLE_TITLE}"
+		fi
+		echo -n -e "\033]0;$title\007"
 	}
 
 	_factory-test()
