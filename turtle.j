@@ -99,14 +99,18 @@ EOF
 
 			cd ${GOPATH}/src/$m
 
-			(_dispatch "$@")
+			rc=0
+			(_dispatch "$@") || rc=1
 			turtle title
+			return $rc
 		}
 
 		__turtle() {
 			cd $(dirname $($(which jsh) module filename turtle))
-			(_dispatch "$@")
+			rc=0
+			(_dispatch "$@") || rc=1
 			turtle title
+			return $rc
 		}
 
 		case "$1" in
