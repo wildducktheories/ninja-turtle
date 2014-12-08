@@ -393,7 +393,7 @@ EOF
 
 		_odroid() {
 			_title loop-odroid
-			while ! ssh -At ${ODROID_USER:-jon}@$odroid; do sleep 5; done
+			while ! ssh -At ${ODROID_USER:-jon}@odroid; do sleep 5; done
 		}
 
 		jsh invoke "$@"
