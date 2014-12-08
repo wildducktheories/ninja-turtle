@@ -391,7 +391,7 @@ EOF
 			while ! ssh -At ninja@${DEVKIT_HOST:-10.0.1.164}; do sleep 5; done
 		}
 
-		_ssh() {
+		_odroid() {
 			_title loop-odroid
 			while ! ssh -At ${ODROID_USER:-jon}@$odroid; do sleep 5; done
 		}
