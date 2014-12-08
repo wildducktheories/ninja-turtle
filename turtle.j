@@ -380,6 +380,25 @@ EOF
 		jsh invoke "$@"
 	}
 
+	_loop() {
+		_screen() {
+			_title loop-screen
+			while true; do screen /dev/tty.usbmodem1411 ; reset; sleep 5; done
+		}
+
+		_ssh() {
+			_title loop-ssh
+			while ! ssh -At ninja@${DEVKIT_HOST:-10.0.1.164}; do sleep 5; done
+		}
+
+		_ssh() {
+			_title loop-odroid
+			while ! ssh -At ${ODROID_USER:-jon}@$odroid; do sleep 5; done
+		}
+
+		jsh invoke "$@"
+	}
+
 
 	_module() {
 		_list() {
