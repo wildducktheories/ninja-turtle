@@ -189,6 +189,57 @@ EOF
 
 	}
 
+	_nand() {
+		_bash() {
+			ssh -AT yoctobuilder@osbuilder01.ci.ninjablocks.co bash
+		}
+
+		_assert() {
+			_in-yocto() {
+				test "$(basename $(pwd))" = "yocto-meta-ninjasphere" ||  die "must be run from yocto-meta-ninjasphere"
+			}
+			jsh invoke "$@"
+		}
+
+		_track() {
+
+			_assert "in-yocto"
+			local branch=${1:-$(git branch | sed -n "s/^* //p")}
+			(cat <<EOF
+cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
+git fetch origin &&
+git stash &&
+git checkout -B $branch origin/$branch
+EOF
+) | _bash
+		}
+
+		_build() {
+			_assert "in-yocto"
+			git push origin $(git branch | sed -n "s/^* //p")
+			(cat <<EOF
+				set -x
+. ~/.bashrc &&
+cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
+git stash &&
+git pull --rebase origin &&
+git stash pop
+			cd ~/yocto_varsomam33/tisdk/build &&
+			export PATH=/opt/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin:$PATH &&
+			. conf/setenv &&
+			MACHINE=varsomam33 bitbake ninjasphere-nand-recovery-image
+EOF
+) | _bash
+		}
+
+		_build-shell() {
+			ssh -At yoctobuilder@osbuilder01.ci.ninjablocks.co sh -c "'cd  ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere && pwd && bash'"
+		}
+
+		jsh invoke "$@"
+
+	}
+
 	_driver()
 	{
 		_name()
