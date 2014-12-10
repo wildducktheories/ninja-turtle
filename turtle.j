@@ -228,7 +228,9 @@ git stash pop
 			export PATH=/opt/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin:$PATH &&
 			. conf/setenv &&
 			MACHINE=varsomam33 bitbake ninjasphere-nand-recovery-image &&
-			./yocto-helper.sh create-nand-tgz
+			pushd ../sources/meta-ninjasphere &&
+			./yocto-helper.sh create-nand-tgz &&
+			popd
 EOF
 ) | _bash
 		}
