@@ -446,19 +446,34 @@ EOF
 	}
 
 	_loop() {
-		_screen() {
-			_title loop-screen
-			while true; do screen /dev/tty.usbmodem1411 ; reset; sleep 5; done
+		_sphere-usb() {
+			_title usb
+			while true; do screen /dev/${SPHERE_USB:-tty.usbmodem1411} ; reset; sleep 5; done
 		}
 
-		_ssh() {
-			_title loop-ssh
-			while ! ssh -At ninja@${DEVKIT_HOST:-10.0.1.164}; do sleep 5; done
+		_sphere-ftdi() {
+			_title ftdi
+			while true; do screen /dev/${SPHERE_FTDI:-tty.usbserial-FTGOI6AW} 115200 ; reset; sleep 5; done
+		}
+
+		_sphere-ssh() {
+			_title sphere
+			while ! ssh -At ninja@${SPHERE_IP:-10.0.1.164}; do sleep 5; done
 		}
 
 		_odroid() {
-			_title loop-odroid
+			_title odroid
 			while ! ssh -At ${ODROID_USER:-jon}@odroid; do sleep 5; done
+		}
+
+		_packager() {
+			_title packager
+			while ! ssh -At ${PACKAGER_USER:-jonseymour}@odroid; do sleep 5; done
+		}
+
+		_image-build() {
+			_title image-build
+			while ! ssh -At ${IMAGE_BUILD_USER:-root}@212.47.239.153; do sleep 5; done
 		}
 
 		jsh invoke "$@"
