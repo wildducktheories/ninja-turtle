@@ -201,6 +201,14 @@ EOF
 			jsh invoke "$@"
 		}
 
+		_get() {
+			local file=$1
+			test -n "$file" || die "usage: get {file}"
+			localfile=/tmp/$(basename "$file")
+			scp yoctobuilder@osbuilder01.ci.ninjablocks.co:${file} "${localfile}" 1>&2
+			echo "$localfile"
+		}
+
 		_track() {
 
 			_assert "in-yocto"
