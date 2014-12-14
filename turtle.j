@@ -537,6 +537,13 @@ EOF
 	jsh invoke "$@"
 }
 
+_git() {
+	_simple-log() {
+		git shortlog "$@" | sed -n "s/^  *//p"
+	}
+	jsh invoke "$@"
+}
+
 if test "$(type -t "_jsh")" != "function"; then
 	die() {
 		echo "$*" 1>&2
