@@ -488,6 +488,23 @@ EOF
 		jsh invoke "$@"
 	}
 
+	_sdcard() {
+		_reimage() {
+			local disk=$1
+			test -b "$disk" || die "$disk is not a block device"
+			test "$disk" != "/dev/disk0" || die "I will not nuke disk0, ok?!"
+
+			diskutil list $disk | grep "Apple" && die "I am not going to delete an Apple disk, ok?"
+
+			image=${NINJA_IMAGE:-~/ninja/images/factory-build/ubuntu_armhf_trusty_norelease_sphere-unstable.img.gz} &&
+			test -f "$image" || die "No image. To fix: export NINJA_IMAGE={your-image-name};" &&
+			shortdisk=$(basename $disk) &&
+			diskutil unmountDisk "$shortdisk" &&
+			gzip -dc "${image}" || sudo dd of=/dev/r${shortdisk} bs=16m
+		}
+
+		jsh invoke "$@"
+	}
 
 	_module() {
 		_list() {
