@@ -234,6 +234,7 @@ git stash pop
 cd ~/yocto_varsomam33/tisdk/build &&
 export PATH=/opt/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin:$PATH &&
 . conf/setenv &&
+MACHINE=varsomam33 bitbake ninjasphere-factory-reset -c clean &&
 MACHINE=varsomam33 bitbake ninjasphere-nand-recovery-image &&
 pushd ../sources/meta-ninjasphere &&
 ./yocto-helper.sh create-nand-tgz &&
