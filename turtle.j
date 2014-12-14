@@ -477,7 +477,7 @@ EOF
 
 		_packager() {
 			_title packager
-			while ! ssh -At ${PACKAGER_USER:-jonseymour}@odroid; do sleep 5; done
+			while ! ssh -At ${PACKAGER_USER:-jonseymour}@buildbox-amd64-sfo-agent1.ci.ninjablocks.co; do sleep 5; done
 		}
 
 		_image-build() {
