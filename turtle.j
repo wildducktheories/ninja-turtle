@@ -524,7 +524,8 @@ EOF
 			test -f "$image" || die "No image. To fix: export NINJA_IMAGE={your-image-name};" &&
 			shortdisk=$(basename $disk) &&
 			diskutil unmountDisk "$shortdisk" &&
-			gzip -dc "${image}" || sudo dd of=/dev/r${shortdisk} bs=16m
+			gzip -dc "${image}" | sudo dd of=/dev/r${shortdisk} bs=16m
+			diskutil unmountDisk "$shortdisk"
 		}
 
 		jsh invoke "$@"
