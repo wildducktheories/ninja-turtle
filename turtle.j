@@ -506,6 +506,30 @@ EOF
 		jsh invoke "$@"
 	}
 
+	_fetch-firmware() {
+		local repo=${1:-unstable}
+		cd ${NINJA_IMAGES:-/Volumes/data/ninja/firmware/latest} &&
+		prefix=${NINJA_PREFIX:-http://firmware.sphere.ninja/latest} &&
+		image=ubuntu_armhf_trusty_norelease_sphere-${repo} &&
+		echo "fetching manifest..." 1>&2
+		curl -s -O ${prefix}/${image}.manifest &&
+		echo "manifest downloaded." &&
+		(
+			cat ${image}.manifest | grep "\\-recovery"
+			cat ${image}.manifest | grep -v "\\-recovery"
+		) | while read sha1 file; do
+			echo -n "fetching ${prefix}/${file}..."
+			test -f "$file" && test "$(sha1sum < "${file}" | cut -f1 -d' ')" = "$sha1" && echo "available - $(echo "$sha1" | cut -c1-8)" ||
+			if curl -s -O ${prefix}/${file}
+				echo -n "$downloaded..." &&
+				test "$(sha1sum < "${file}" | cut -f1 -d' ')" = "$sha1"; then
+				echo "ok - $(echo $sha1 | cut -c1-8)"
+			else
+				echo "failed"
+			fi
+		done
+	}
+
 	_module() {
 		_list() {
 			find $GOPATH/src -mindepth 3 -maxdepth 3 -type d | while read d
