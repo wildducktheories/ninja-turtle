@@ -506,6 +506,7 @@ EOF
 
 		_image-build() {
 			_title image-build
+			# 212.47.239.20
 			while ! ssh -At ${IMAGE_BUILD_USER:-root}@212.47.239.153; do sleep 5; done
 		}
 
