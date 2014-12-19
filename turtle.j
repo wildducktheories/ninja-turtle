@@ -480,6 +480,10 @@ EOF
 			while true; do screen /dev/${SPHERE_USB:-tty.usbmodem1411} ; reset; sleep 5; done
 		}
 
+		_sphere-usb2() {
+			_title usb2
+			while true; do screen /dev/${SPHERE_USB2:-tty.usbmodem1412} ; reset; sleep 5; done
+		}
 		_sphere-ftdi() {
 			_title ftdi
 			while true; do screen /dev/${SPHERE_FTDI:-tty.usbserial-FTGOI6AW} 115200 ; reset; sleep 5; done
