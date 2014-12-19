@@ -227,20 +227,24 @@ EOF
 			git push origin $(git branch | sed -n "s/^* //p")
 			(cat <<EOF
 . ~/.bashrc &&
-cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
-git stash &&
-git pull --rebase origin &&
-git stash pop
-cd ~/yocto_varsomam33/tisdk/build &&
-export PATH=/opt/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin:$PATH &&
-. conf/setenv &&
-MACHINE=varsomam33 bitbake ninjasphere-factory-reset -c clean &&
-MACHINE=varsomam33 bitbake ninjasphere-nand-recovery-image &&
-pushd ../sources/meta-ninjasphere &&
-./yocto-helper.sh create-nand-tgz &&
-popd
+(
+	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
+	git stash &&
+	git pull --rebase origin &&
+	git stash pop
+	cd ~/yocto_varsomam33/tisdk/build &&
+	export PATH=/opt/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin:$PATH &&
+	. conf/setenv &&
+	MACHINE=varsomam33 bitbake ninjasphere-factory-reset -c clean &&
+	MACHINE=varsomam33 bitbake ninjasphere-nand-recovery-image &&
+	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
+	./yocto-helper.sh create-nand-tgz
+) 1>&2 && (
+	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere
+	./yocto-helper.sh publish-nand-tgz
+)
 EOF
-) | _bash
+)  | _bash 2>&1 | tee -a build.log
 		}
 
 		_sync() {
