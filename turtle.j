@@ -255,6 +255,22 @@ git stash pop
 EOF
 ) | _bash
 		}
+
+		_update() {
+			(cat <<EOF
+. ~/.bashrc &&
+(
+	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere/recipes-ninja/ninjasphere-factory-reset/files &&
+	git pull --rebase origin &&
+	sh -x ./update.sh &&
+	git push origin $(git branch | grep "^*" | cut -f2 -d' ')
+) 1>&2
+EOF
+)  | _bash
+			git pull --rebase origin
+
+		}
+
 		_build-shell() {
 			ssh -At yoctobuilder@osbuilder01.ci.ninjablocks.co sh -c "'cd  ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere && pwd && bash'"
 		}
