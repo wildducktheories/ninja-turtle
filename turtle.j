@@ -558,6 +558,34 @@ EOF
 		done
 	}
 
+	_fetch-package() {
+		local package=$1
+		test -n "$package" || die "usage: fetch-package {package}"
+
+		for repo in https://s3.amazonaws.com/ninjablocks-apt-repo/dists/trusty-spheramid-unstable/main http://s3.amazonaws.com/ninja-partialverse-repo/dists/partialverse/main; do
+			file=$(
+				echo $repo 1>&2 &&
+				echo $(dirname $(dirname $(dirname $repo))) 1>&2 &&
+				curl -s $repo/binary-armhf/Packages.gz  |
+				gzip -dc  |
+				sed -n "s/^Filename: //p" |
+				grep /${package}_*
+			)
+			if test -n "$file"; then
+				if curl -O $(dirname $(dirname $(dirname $repo)))/$file &&
+					test -f $(basename "$file"); then
+					echo "$(basename "$file")"
+				fi
+			fi
+		done
+	}
+
+	_fetch-packages() {
+
+		local repo=${1:-unstable}
+		curl -s https://s3.amazonaws.com/ninjablocks-apt-repo/dists/trusty-spheramid-${repo}/main/binary-armhf/Packages.gz | gzip -dc
+	}
+
 	_module() {
 		_list() {
 			find $GOPATH/src -mindepth 3 -maxdepth 3 -type d | while read d
