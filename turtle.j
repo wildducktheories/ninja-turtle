@@ -249,13 +249,13 @@ EOF
 		}
 
 		_update() {
+			local version=$1
+			test -n "$version" || die "usage: turtle nand update {version}"
 			(cat <<EOF
-. ~/.bashrc &&
 (
-	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere/recipes-ninja/ninjasphere-factory-reset/files &&
-	git pull --rebase origin &&
-	sh -x ./update.sh &&
-	git push origin $(git branch | grep "^*" | cut -f2 -d' ')
+	. ~/.bashrc &&
+	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
+	./yocto-helper.sh update-ninjasphere-factory-reset "$version"
 ) 1>&2
 EOF
 )  | _bash
