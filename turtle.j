@@ -479,7 +479,7 @@ EOF
 	_loop() {
 		_sphere-usb() {
 			_title usb
-			while true; do screen /dev/${SPHERE_USB:-tty.usbmodem1411} ; reset; sleep 5; done
+			while true; do screen /dev/${SPHERE_USB:-$(basename $(ls -d /dev/tty.usb* | sort | tail -1))} ; reset; sleep 5; done
 		}
 
 		_sphere-usb2() {
