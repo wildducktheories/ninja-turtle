@@ -229,22 +229,8 @@ EOF
 				cat <<EOF
 				set -x
 . ~/.bashrc &&
-(
-	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
-	git stash &&
-	git pull --rebase origin &&
-	git stash pop
-	cd ~/yocto_varsomam33/tisdk/build &&
-	export PATH=/opt/gcc-linaro-arm-linux-gnueabihf-4.7-2013.03-20130313_linux/bin:$PATH &&
-	. conf/setenv &&
-	MACHINE=varsomam33 bitbake ninjasphere-factory-reset -c clean &&
-	MACHINE=varsomam33 bitbake ninjasphere-nand-recovery-image &&
-	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
-	./yocto-helper.sh create-nand-tgz
-) 1>&2 && (
-	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere
-	./yocto-helper.sh publish-nand-tgz
-)
+cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
+./yocto-helper.sh build-and-publish
 EOF
 )  | _bash 2>&1 | tee -a build.log
 		}
