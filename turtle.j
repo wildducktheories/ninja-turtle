@@ -224,8 +224,10 @@ EOF
 
 		_build() {
 			_assert "in-yocto"
-			git push origin $(git branch | sed -n "s/^* //p")
-			(cat <<EOF
+			git push origin $(git branch | sed -n "s/^* //p") &&
+			(
+				cat <<EOF
+				set -x
 . ~/.bashrc &&
 (
 	cd ~/yocto_varsomam33/tisdk/sources/meta-ninjasphere &&
