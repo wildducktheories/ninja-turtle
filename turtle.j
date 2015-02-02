@@ -474,7 +474,7 @@ EOF
 		}
 		_sphere-ftdi() {
 			_title ftdi
-			while true; do screen -L /dev/${SPHERE_FTDI:-tty.usbserial-FTGOI6AW} 115200 ; reset; sleep 5; done
+			while true; do screen -L /dev/${SPHERE_FTDI:-$(basename $(ls -d /dev/tty.usbserial* | sort | tail -1))} 115200 ; reset; sleep 5; done
 		}
 
 		_sphere-ssh() {
