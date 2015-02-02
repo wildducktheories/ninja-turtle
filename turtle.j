@@ -558,6 +558,7 @@ EOF
 				grep /${package}_*
 			)
 			if test -n "$file"; then
+				echo $(dirname $(dirname $(dirname $repo)))/$file
 				if curl -O $(dirname $(dirname $(dirname $repo)))/$file &&
 					test -f $(basename "$file"); then
 					echo "$(basename "$file")"
