@@ -495,7 +495,9 @@ EOF
 		_image-build() {
 			_title image-build
 			# 212.47.239.20
-			while ! ssh -At ${IMAGE_BUILD_USER:-root}@212.47.239.153; do sleep 5; done
+			#212.47.239.153
+			#212.47.232.48
+			while ! ssh -At ${IMAGE_BUILD_USER:-root}@212.47.232.48; do sleep 5; done
 		}
 
 		jsh invoke "$@"
@@ -548,7 +550,7 @@ EOF
 		local package=$1
 		test -n "$package" || die "usage: fetch-package {package}"
 
-		for repo in https://s3.amazonaws.com/ninjablocks-apt-repo/dists/trusty-spheramid-unstable/main http://s3.amazonaws.com/ninja-partialverse-repo/dists/partialverse/main; do
+		for repo in http://ports.ubuntu.com/dists/trusty/main https://s3.amazonaws.com/ninjablocks-apt-repo/dists/trusty-spheramid-unstable/main http://s3.amazonaws.com/ninja-partialverse-repo/dists/partialverse/main; do
 			file=$(
 				echo $repo 1>&2 &&
 				echo $(dirname $(dirname $(dirname $repo))) 1>&2 &&
@@ -571,6 +573,15 @@ EOF
 
 		local repo=${1:-unstable}
 		curl -s https://s3.amazonaws.com/ninjablocks-apt-repo/dists/trusty-spheramid-${repo}/main/binary-armhf/Packages.gz | gzip -dc
+	}
+
+	_promoteable() {
+		local from=$1
+		local to=$2
+		_fetch-packages $from > /tmp/from.$$
+		_fetch-packages $to > /tmp/to.$$
+		trap "rm /tmp/to.$$ && rm /tmp/from.$$" EXIT
+		diff -u /tmp/from.$$ /tmp/to.$$ | grep "^+Filename:" | cut -f2 -d' ' | cut -f4 -d'/'
 	}
 
 	_module() {
@@ -621,11 +632,77 @@ EOF
 	jsh invoke "$@"
 }
 
+_discuss() {
+# {
+#   "action_type": 5,
+#   "created_at": "2015-01-13T05:22:39.080Z",
+#   "excerpt": "G&#39;day David, \n\nFor the moment, the best way to formally report an issue with a Ninja Sphere is to send an email to support@ninjablocks.com. Over time, we will refine our support processes to improve the visibility of known issues to the community at large. \n\nRegards, \n\njon seymour.",
+#   "avatar_template": "/user_avatar/discuss.ninjablocks.com/jon_seymour/{size}/906.png",
+#   "acting_avatar_template": "/user_avatar/discuss.ninjablocks.com/jon_seymour/{size}/906.png",
+#   "slug": "reporting-bugs-best-place-for-it",
+#   "topic_id": 2845,
+#   "target_user_id": 7036,
+#   "target_name": "Jon Seymour",
+#   "target_username": "Jon_Seymour",
+#   "post_number": 2,
+#   "post_id": 16188,
+#   "reply_to_post_number": null,
+#   "username": "Jon_Seymour",
+#   "name": "Jon Seymour",
+#   "user_id": 7036,
+#   "acting_username": "Jon_Seymour",
+#   "acting_name": "Jon Seymour",
+#   "acting_user_id": 7036,
+#   "title": "Reporting bugs - Best place for it?",
+#   "deleted": false,
+#   "hidden": false,
+#   "moderator_action": false,
+#   "category_id": 23,
+#   "uploaded_avatar_id": 906,
+#   "acting_uploaded_avatar_id": 906
+# }
+
+
+	_article-summaries-by-user() {
+		user=$1
+		max=$2
+		offset=0
+		while test $offset -lt $max; do
+			curl -s "https://discuss.ninjablocks.com/user_actions.json?offset=$offset&username=$user&filter=5" | jq  -r '.user_actions[]|[.created_at,.excerpt,.slug,.topic_id,.post_number,.post_id,.title]|map(tostring)|[., "https://discuss.ninjablocks.com/t/"+.[2]+"/"+.[3]+"/"+.[4]]|flatten|@csv'
+			let offset=offset+60
+		done
+	}
+
+	jsh invoke "$@"
+}
+
 _git() {
 	_simple-log() {
 		git shortlog "$@" | sed -n "s/^  *//p"
 	}
 	jsh invoke "$@"
+}
+
+_promote() {
+	local id=$1
+	local thingType=$2
+	local room=$3
+	test -n "$room" || die "usage: promote {id} {thingType} {room-id}"
+	test -n "$SPHERE_IP" || die "must defined SPHERE_IP"
+	thing=$(curl -s http://${SPHERE_IP}:8000/rest/v1/things/$id | jq ".data|.promoted=true|.type=\"${thingType}\"")
+	echo "$thing" | curl -s -d @- -XPUT "http://${SPHERE_IP}:8000/rest/v1/things/$id"
+	curl -s -d "{\"id\": \"$room\"}" -XPUT "http://${SPHERE_IP}:8000/rest/v1/things/$id/location"
+}
+
+
+_create-room() {
+	local type=$1
+	shift 1
+	local name="$*"
+	test -n "$name" || die "usage: create-room type name"
+	test -n "$SPHERE_IP" || die "must defined SPHERE_IP"
+	output=$(curl -s -d "{\"name\":\"$name\", \"type\":\"$type\"}" -XPOST "http://${SPHERE_IP}:8000/rest/v1/rooms")
+	echo "$output" | jq -r '.data.id'
 }
 
 if test "$(type -t "_jsh")" != "function"; then
